@@ -120,6 +120,7 @@
   <ItemGroup>
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Game.cs" />
     <Compile Include="SlackManager.cs" />
     <Compile Include="GameHelper.cs" />
     <Compile Include="Board.cs" />

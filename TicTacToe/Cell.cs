@@ -1,39 +1,45 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-
-namespace TicTacToe
+﻿namespace TicTacToe
 {
 
+    public class Cell
+    {
+        #region Local Variables
 
-	public class Cell
-	{
-		private int row, col;
-		public Seed content;
+        public int row, col; // Represents row and column for a cell
+        public Board.Seed content; // Represent the current value of the cell
 
-		public Cell(int row, int col)
-		{
-			this.row = row;
-			this.col = col;
-		}
+        #endregion
 
+        #region Public Methods
+        public Cell(int row, int col)
+        {
+            this.row = row;
+            this.col = col;
+        }
+
+        /// <summary>
+        /// Erases the value of the cell
+        /// </summary>
 		public void Erase()
-		{
-			content = Seed.EMPTY;
-		}
+        {
+            content = Board.Seed.EMPTY;
+        }
 
+        /// <summary>
+        /// Draws the cell value
+        /// </summary>
+        /// <returns></returns>
 		public string Draw()
-		{
-			switch (content)
-			{
-				case Seed.X: return("  X  "); 
-				case Seed.O: return("  O  "); 
-				case Seed.EMPTY: return("  E  "); 
-			}
-		    return string.Empty;
-		}
+        {
+            switch (content)
+            {
+                case Board.Seed.X: return ("  X  ");
+                case Board.Seed.O: return ("  O  ");
+                case Board.Seed.EMPTY: return ("  E  ");
+            }
+            return string.Empty;
+        }
+        #endregion
 
-
-	}
+    }
 }

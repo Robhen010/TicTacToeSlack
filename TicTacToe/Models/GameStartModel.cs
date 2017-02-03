@@ -1,9 +1,7 @@
-﻿using System;
-namespace TicTacToe
+﻿namespace TicTacToe.Models
 {
 	public class GameStartModel
 	{
-
 	    public string token { get; set; }
 	    public string team_id { get; set; }
 	    public string team_domain { get; set; }
