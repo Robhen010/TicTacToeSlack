@@ -1,0 +1,18 @@
+﻿<Properties StartupConfiguration="{D5D46234-40D6-45C9-A53F-0AE88FD444B7}|">
+  <MonoDevelop.Ide.ItemProperties.TicTacToe PreferredExecutionTarget="MonoDevelop.Default" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="TicTacToe/RestServiceHelper.cs">
+    <Files>
+      <File FileName="TicTacToe/Cell.cs" Line="26" Column="16" />
+      <File FileName="TicTacToe/Controllers/TicTacToeController.cs" Line="14" Column="10" />
+      <File FileName="TicTacToe/Models/GameMoveModel.cs" Line="10" Column="24" />
+      <File FileName="TicTacToe/Models/GameStartModel.cs" Line="6" Column="3" />
+      <File FileName="TicTacToe/Board.cs" Line="143" Column="5" />
+      <File FileName="TicTacToe/RestServiceHelper.cs" Line="9" Column="8" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+</Properties>
