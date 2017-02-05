@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Web.Http;
 using TicTacToe.Models;
+using Newtonsoft.Json;
 
 namespace TicTacToe.Controllers
 {
@@ -38,14 +39,22 @@ namespace TicTacToe.Controllers
                     }
                     else if (request.text.ToLower().Contains("challenge"))
                     {
-
-                        //SlackManager manager = new SlackManager();
-                        //var userList =  manager.GetUserList();
-                        //return Ok(userList);
-                        // Pull out opponent's name 
-                        // return Ok("request text: " + request.text + " opponentName: ");
+                        // Parse opponent name 
                         var offSet = request.text.IndexOf('@');
                         var opponentName = request.text.Substring(offSet, request.text.Length - offSet);
+                        
+                        // Create an instance of slack manager to use slack rest api calls
+                        SlackManager manager = new SlackManager();
+
+                        // pull slack channel user list
+                        var userList = manager.GetUserList();
+                        SlackUserListModel userListModel = JsonConvert.DeserializeObject<SlackUserListModel>(userList);
+
+                        // if the opponent isn't in the slack user list for the channel do not proceed
+                        if (!userListModel.members.Any(x => x.name.Equals(opponentName.Replace("@", ""))))
+                        {
+                            return Ok("There are no users in this channel with the name " + opponentName);
+                        }                                          
 
                         // Check for existing game
                         if (GameHelper.game != null && GameHelper.game.currState == Board.State.PLAYING)
@@ -53,10 +62,10 @@ namespace TicTacToe.Controllers
                             return Ok("Unfortunately a game is already in session");
                         }
 
-                        //Game Start
+                        // Game Start
                         GameHelper.game = Game.ChallengeMadeStartGame(request.user_name, opponentName);
 
-
+                        // Create Response
                         response = new SlackResponseModel()
                         {
                             response_type = "in_channel",
@@ -80,7 +89,7 @@ namespace TicTacToe.Controllers
 
                         try
                         {
-
+                            // Get coordinants for move
                             var xString = request.text.Substring(request.text.IndexOf(' ') + 1, 1);
                             var yString = request.text.Substring(request.text.IndexOf(',') + 1, 1);
                             x = Convert.ToInt32(xString);
@@ -91,11 +100,13 @@ namespace TicTacToe.Controllers
                             return Ok("Please enter a valid R,C coordinate. R: 0-2 and C: 0-2");
                         }
 
+                        // play move based on current player and coordinants
                         var result = Game.MakeMove(GameHelper.game, GameHelper.game.currPlayer, request.user_name, x, y);
 
+                        // create response
                         response = new SlackResponseModel()
                         {
-                            response_type = "in_channel",
+                            response_type = "ephemeral",
                             text = request.user_name + " Plays " + x + "," + y,
                             attachments = new[] { new Attachment() { text = result } }
                         };
@@ -105,6 +116,7 @@ namespace TicTacToe.Controllers
                     }
                     else if (request.text.ToLower().Contains("help"))
                     {
+                        // create response containing help information
                         response = new SlackResponseModel()
                         {
                             response_type = "in_channel",
@@ -130,6 +142,7 @@ namespace TicTacToe.Controllers
                     }
                     else if (request.text.ToLower().Contains("status"))
                     {
+                        // Get current status of the game
                         if (GameHelper.game != null)
                         {
                             switch (GameHelper.game.currState)
@@ -139,6 +152,7 @@ namespace TicTacToe.Controllers
 
                                 case Board.State.READY:
                                     return Ok("The board is ready. Please make a challenge");
+                                   
                             }
                         }
                         else
@@ -150,6 +164,7 @@ namespace TicTacToe.Controllers
                     }
                     else if (request.text.ToLower().Contains("draw board"))
                     {
+                        // Draws the game board for the entire channel
                         if (GameHelper.game != null)
                         {
                             response = new SlackResponseModel()
@@ -174,7 +189,7 @@ namespace TicTacToe.Controllers
             }
             catch (Exception e)
             {
-
+                // Display exception message for debugging purpose 
                 return BadRequest("An Exception occured: " + e.Message + "\n" + e.InnerException + " stack trace" + e.StackTrace);
             }
         }
