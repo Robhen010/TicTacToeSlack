@@ -11,7 +11,7 @@ namespace TicTacToe.Controllers
     {
         #region Variables
 
-        private string _token = "KZOgE8iLQOBwOpCPGJbPjEeC";
+        private string _token = System.Web.Configuration.WebConfigurationManager.AppSettings["SlackTeamToken"];
 
         #endregion
 

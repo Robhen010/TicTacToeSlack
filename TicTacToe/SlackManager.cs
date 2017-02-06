@@ -9,7 +9,7 @@ namespace TicTacToe
     {
 
         private string _slackBaseUrl = "https://slack.com/api/";
-        private string _token = "xoxp-133823321525-133056290161-137240699586-f20593bafd6b14a42f0e08dbb0f0f9d0";
+        private string _token = System.Web.Configuration.WebConfigurationManager.AppSettings["SlackManagerToken"];
         private string _userListUrl = "users.list";
 
         public string GetUserList()
