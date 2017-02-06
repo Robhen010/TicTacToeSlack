@@ -32,17 +32,24 @@ namespace TicTacToe.Controllers
                 SlackResponseModel response = null;
                 if (ValidateToken(request))
                 {
-                    if (request.text.ToLower().Contains("destroy"))
+                    if (request.text.ToLower().Contains("init"))
                     {
                         GameHelper.game = Game.Init(new Game());
-                        return Ok("The current game has been destroyed. Please make a challenge");
+                        return Ok("The game has been initialized. Please make a challenge");
                     }
                     else if (request.text.ToLower().Contains("challenge"))
                     {
+
+
                         // Parse opponent name 
                         var offSet = request.text.IndexOf('@');
+                        if (offSet == -1)
+                        {
+                            return Ok("Invalid Challenge");
+                        }
+
                         var opponentName = request.text.Substring(offSet, request.text.Length - offSet);
-                        
+
                         // Create an instance of slack manager to use slack rest api calls
                         SlackManager manager = new SlackManager();
 
@@ -54,7 +61,7 @@ namespace TicTacToe.Controllers
                         if (!userListModel.members.Any(x => x.name.Equals(opponentName.Replace("@", ""))))
                         {
                             return Ok("There are no users in this channel with the name " + opponentName);
-                        }                                          
+                        }
 
                         // Check for existing game
                         if (GameHelper.game != null && GameHelper.game.currState == Board.State.PLAYING)
@@ -69,9 +76,11 @@ namespace TicTacToe.Controllers
                         response = new SlackResponseModel()
                         {
                             response_type = "in_channel",
-                            text = request.user_name + " has challenged " + opponentName + " to a game of tic tac toe." +
-                                   "\n" + request.user_name + " is assigned X while " + opponentName +
-                                   " is assigned O. X Moves first",
+                            text = request.user_name + " has challenged " +
+                                   opponentName + " to a game of tic tac toe." +
+                                   "\n" + request.user_name + " is assigned X while " +
+                                   opponentName +  " is assigned O. X Moves first",
+                                 
                             attachments = new[] { new Attachment() { text = Board.Draw(GameHelper.game.board) } }
                         };
                         return Ok(response);
@@ -106,8 +115,8 @@ namespace TicTacToe.Controllers
                         // create response
                         response = new SlackResponseModel()
                         {
-                            response_type = "ephemeral",
-                            text = request.user_name + " Plays " + x + "," + y,
+                            response_type = "in_channel",
+                            text = request.user_name + " plays " + x + "," + y + "\n \n",
                             attachments = new[] { new Attachment() { text = result } }
                         };
 
@@ -119,7 +128,7 @@ namespace TicTacToe.Controllers
                         // create response containing help information
                         response = new SlackResponseModel()
                         {
-                            response_type = "in_channel",
+                            response_type = "ephemeral",
                             text = "Slack TicTacToe by Robert Henderson",
                             attachments = new[]
                             {
@@ -132,7 +141,7 @@ namespace TicTacToe.Controllers
                                     "/ttt play R,C              - Play Move Where R And C Are Coordinates 0-2\n" +
                                     "/ttt status                - Gets Current Game Status\n" +
                                     "/ttt draw board            - Gets Current Game Board and Current Player\n" +
-                                    "/ttt destroy               - Ends Game Initializes For a New One\n"
+                                    "/ttt init                  - Initializes For a New One\n"
                             }
                         }
                         };
@@ -148,11 +157,11 @@ namespace TicTacToe.Controllers
                             switch (GameHelper.game.currState)
                             {
                                 case Board.State.PLAYING:
-                                    return Ok("There is a current game in session and its " + GetNameFromSeed(GameHelper.game.currPlayer) + "'s turn");
+                                    return Ok("There is a current game in session and its " + Game.GetNameFromSeed(GameHelper.game.currPlayer) + "'s turn");
 
                                 case Board.State.READY:
                                     return Ok("The board is ready. Please make a challenge");
-                                   
+
                             }
                         }
                         else
@@ -169,15 +178,18 @@ namespace TicTacToe.Controllers
                         {
                             response = new SlackResponseModel()
                             {
-                                response_type = "ephemeral",
+                                response_type = "in_channel",
                                 text = "Tic Tac Toe Game Board",
-                                attachments = new[] {new Attachment() {text = Board.Draw(GameHelper.game.board) + "\n "+
-                                GetNameFromSeed(GameHelper.game.currPlayer) + "'s turn" } }
+                                attachments = new[] {new Attachment() {
+                                    text = GameHelper.game.currPlayer != Board.Seed.EMPTY?
+                                    Board.Draw(GameHelper.game.board) + "\n "+
+                                    Game.GetNameFromSeed(GameHelper.game.currPlayer) +
+                                    "'s turn" :  Board.Draw(GameHelper.game.board) } }
                             };
                             return Ok(response);
                         }
                         return Ok("Game is not initialized please run the /ttt destroy command and make a challenge");
-                        
+
                     }
                     return Ok("Text: " + request.text + " Command: " + request.command + " Token: " + request.token);
 
@@ -205,14 +217,7 @@ namespace TicTacToe.Controllers
             return request.token.Equals(_token);
         }
 
-        private string GetNameFromSeed(Board.Seed seed)
-        {
-            if (GameHelper.game != null)
-            {
-                return GameHelper.game.playerDictionary.FirstOrDefault(x => x.Value == seed).Key;
-            }
-            return string.Empty;
-        }
+
 
         #endregion
     }

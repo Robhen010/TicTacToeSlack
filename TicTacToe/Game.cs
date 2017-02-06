@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace TicTacToe
 {
@@ -79,16 +80,25 @@ namespace TicTacToe
                 // Switch Current Players
                 game.currPlayer = seed == Board.Seed.X ? Board.Seed.O : Board.Seed.X;
 
-                // Return Game Board
-                return Board.Draw(game.board);
-
+              
+                return Board.Draw(game.board) + "\n \n " +
+                       GetNameFromSeed(GameHelper.game.currPlayer) + "'s turn \n";
             }
             else
             {
                 // Invalid Move
-                return "This move at (" + (row) + "," + (col)
+                return "Move at (" + (row) + "," + (col)
                        + ") is not valid. Try again";
             }
+        }
+
+        public static string GetNameFromSeed(Board.Seed seed)
+        {
+            if (GameHelper.game != null)
+            {
+                return GameHelper.game.playerDictionary.FirstOrDefault(x => x.Value == seed).Key;
+            }
+            return string.Empty;
         }
 
         #endregion
